@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "772056320405",
+    "project_id": "parental-control-e9e6b",
+    "storage_bucket": "parental-control-e9e6b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772056320405:android:4957b0caf401a5a4ca0e9c",
+        "android_client_info": {
+          "package_name": "com.makeit.eduapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGSALIegBj0iMVnOnki795g5mm3A6mY-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
