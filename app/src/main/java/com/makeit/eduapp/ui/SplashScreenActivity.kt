@@ -1,28 +1,38 @@
 package com.makeit.eduapp.ui
 
+import android.app.AppOpsManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Process
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
 import com.makeit.eduapp.MainActivity
 import com.makeit.eduapp.R
 import com.makeit.eduapp.databinding.ActivitySplashScreenBinding
+
 
 class SplashScreenActivity : AppCompatActivity() {
     val TAG = SplashScreenActivity::class.java.simpleName
 
     private lateinit var binding: ActivitySplashScreenBinding
 //    private val prefs = EduApp.prefs!!
+
+    companion object{
+        const val MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -103,29 +113,34 @@ class SplashScreenActivity : AppCompatActivity() {
                             val user = auth.currentUser
                             val uid = user?.uid
 
-//                            if (user != null){
-//
-//                            }
-
                             if (uid != null) {
-                                val userData = hashMapOf(
-                                    "email" to user.email,
-                                    "name" to user.displayName,
-                                    "age" to 30
-                                    // Add more user data as needed
-                                )
+                                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val token = task.result
+                                        val userData = hashMapOf(
+                                            "email" to user.email,
+                                            "token" to token
+                                        )
 
-//                                db.collection("users").document(uid)
-//                                    .set(userData)
-//                                    .addOnSuccessListener {
-//                                        Log.d(TAG, "User data added successfully")
-//                                    }
-//                                    .addOnFailureListener { e ->
-//                                        Log.w(TAG, "Error adding user data", e)
-//                                    }
+                                        db.collection("users").document(uid)
+                                            .set(userData, SetOptions.merge())
+                                            .addOnSuccessListener {
+                                                Log.d(TAG, "User data added successfully")
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.w(TAG, "Error adding user data", e)
+                                            }
+                                        Log.d(TAG, "onCreate: token: ${token.toString()}")
+                                    } else {
+                                        Log.d(TAG, "onCreate: task: ${task.result.toString()}")
+                                    }
+                                }
+
+
 
                                 val intent = Intent(this, MainActivity::class.java)
                                 intent.putExtra("user", user)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 startActivity(intent)
                             }
                         } else {
@@ -137,6 +152,7 @@ class SplashScreenActivity : AppCompatActivity() {
                 showIncompleteCredential(view)
             }
         }
+
 
         btnRegister.setOnClickListener {
 
@@ -153,27 +169,33 @@ class SplashScreenActivity : AppCompatActivity() {
                             // Registration successful, handle new user
                             val user = FirebaseAuth.getInstance().currentUser
                             if (user != null) {
-                                // Store additional user data in Firestore
-                                val userData = hashMapOf(
-                                    "email" to user.email,
-                                    "name" to binding.fNameEditText.text.toString(),
-                                    "category" to categorySelection
-                                    // Add more user data as needed
-                                )
+                                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val token = task.result
+                                        val userData = hashMapOf(
+                                            "email" to user.email,
+                                            "token" to token,
+                                            "name" to binding.fNameEditText.text.toString(),
+                                            "category" to categorySelection
+                                        )
 
-                                val db = FirebaseFirestore.getInstance()
-                                db.collection("users").document(user.uid)
-                                    .set(userData)
-                                    .addOnSuccessListener {
-                                        Log.d(TAG, "User data added successfully")
-                                        // Navigate to the main activity or perform other actions
-                                        val intent = Intent(this, MainActivity::class.java)
-                                        startActivity(intent)
+                                        db.collection("users").document(user.uid)
+                                            .set(userData)
+                                            .addOnSuccessListener {
+                                                Log.d(TAG, "User data added successfully")
+                                                Snackbar.make(view, "Registration Success. Please login", Snackbar.LENGTH_SHORT).show()
+
+                                                binding.fNameEditText.visibility = View.GONE
+                                                binding.categoryDropdown.visibility = View.GONE
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.w(TAG, "Error adding user data", e)
+                                            }
+                                        Log.d(TAG, "onCreate: token: ${token.toString()}")
+                                    } else {
+                                        Log.d(TAG, "onCreate: task: ${task.result.toString()}")
                                     }
-                                    .addOnFailureListener { e ->
-                                        Log.w(TAG, "Error adding user data", e)
-                                        // Handle error
-                                    }
+                                }
                             }
                         } else {
                             // Registration failed, handle error
@@ -220,7 +242,21 @@ class SplashScreenActivity : AppCompatActivity() {
 //                showIncompleteCredential(view)
 //            }
         }
+
+        val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(), packageName
+        )
+
+        if (mode == AppOpsManager.MODE_ALLOWED){
+
+        } else {
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            startActivityForResult(intent, MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS)
+        }
     }
+
 
     private fun showIncompleteCredential(view: View) {
         Snackbar.make(view, "Incomplete credential", Snackbar.LENGTH_SHORT).show()

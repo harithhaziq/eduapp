@@ -1,7 +1,9 @@
 package com.makeit.eduapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -9,7 +11,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.makeit.eduapp.databinding.ActivityMainBinding
+import com.makeit.eduapp.util.MyFirebaseMessagingService
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,23 +38,11 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val db = FirebaseFirestore.getInstance()
-//        val usersCollection = db.collection("users")
+        FirebaseMessaging.getInstance().isAutoInitEnabled = true
+    }
 
-//        // Example: Query all users
-//        usersCollection.get()
-//            .addOnSuccessListener { documents ->
-//                for (document in documents) {
-//                    Log.d(TAG, "${document.id} => ${document.data}")
-//                    // Access the data in the document
-//                    val name = document.getString("name")
-//                    val age = document.getString("age")
-//
-//                    Log.d(TAG, "Name: $name, Age: $age")
-//                }
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.w(TAG, "Error getting documents: ", exception)
-//            }
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        Toast.makeText(this, "Logout to go back to login page", Toast.LENGTH_SHORT).show()
     }
 }

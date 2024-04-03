@@ -40,7 +40,7 @@
                     android:id="@+id/usernameEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Username"/>
+                    android:hint="Email"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Password EditText -->
