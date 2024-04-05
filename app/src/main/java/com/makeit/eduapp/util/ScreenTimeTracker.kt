@@ -36,6 +36,6 @@ object ScreenTimeTracker {
             }
         }
 
-        return ((totalScreenTime / 60000) - 300)
+        return ((totalScreenTime / 60000))
     }
 }

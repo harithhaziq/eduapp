@@ -41,13 +41,88 @@
                     android:textColor="@color/black"
                     android:layout_marginBottom="8dp"/>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_weight="2"
+                        android:id="@+id/tv_screentime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/black" />
+                    <TextView
+                        android:layout_weight="2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:text="/"
+                        android:textAlignment="center"
+                        android:textColor="@color/black" />
+                    <TextView
+                        android:id="@+id/tv_current_limit"
+                        android:layout_weight="2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="@color/black" />
+                </LinearLayout>
+
                 <TextView
-                    android:id="@+id/tv_screentime"
+                    android:id="@+id/tv_warning"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
+                    android:text="Usage exceeded !"
+                    android:textColor="@color/design_default_color_error"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/et_new_limit"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:hint="New limit (minutes)"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:layout_margin="2dp"
+                        android:drawableStart="@android:drawable/ic_lock_idle_alarm"
+                        android:textColor="@color/black"
+                        android:textSize="12sp"
+                        android:inputType="number"
+                        android:imeOptions="actionDone"
+                        android:layout_gravity="center_vertical"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_new_limit"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_margin="2dp"
+                        android:text="Set"
+                        android:textColor="@color/white"
+                        app:backgroundTint="#5D3391"
+                        app:strokeWidth="2dp"
+                        app:cornerRadius="6dp"
+                        app:rippleColor="@color/black"
+                        android:elevation="4dp"/>
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/tv_child_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="8sp"
                     android:textColor="@color/black"
                     android:layout_marginBottom="8dp"/>
+
+
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_notify"

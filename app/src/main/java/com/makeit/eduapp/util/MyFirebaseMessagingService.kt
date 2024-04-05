@@ -27,22 +27,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         private val TAG = MyFirebaseMessagingService::class.java.simpleName
     }
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-//        // Check if the message contains data payload
-//        remoteMessage.data.isNotEmpty().let {
-//            // Handle data payload
-//            handleDataPayload(remoteMessage.data)
-//            val title = remoteMessage.notification?.title ?: "Title"
-//            val body = remoteMessage.notification?.body ?: "Body"
-//
-//            showNotification(title, body)
-//
-//        }
-//
-//        // Check if the message contains a notification payload (optional)
-//        remoteMessage.notification?.let {
-//            // Handle notification payload
-//            handleNotificationPayload(it)
-//        }
 
         val intent = Intent(this, MainActivity::class.java)
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -89,12 +73,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val adminChannelName = "New notification"
         val adminChannelDescription = "Device to devie notification"
 
-        val adminChannel: NotificationChannel
-        adminChannel = NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_HIGH)
+        val adminChannel =
+            NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_HIGH)
         adminChannel.description = adminChannelDescription
         adminChannel.enableLights(true)
         adminChannel.lightColor = Color.RED
         adminChannel.enableVibration(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            adminChannel.setAllowBubbles(true)
+        }
         notificationManager?.createNotificationChannel(adminChannel)
     }
 

@@ -5,6 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_user"
@@ -161,23 +165,28 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_child"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:layout_constraintTop_toBottomOf="@id/cv_add_child">
-        <androidx.recyclerview.widget.RecyclerView
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_add_child"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_child"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/rv_child_list"
-            android:layout_margin="8dp"/>
+            android:layout_margin="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/rv_child_list"
+                android:layout_margin="8dp"/>
 
-    </com.google.android.material.card.MaterialCardView>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

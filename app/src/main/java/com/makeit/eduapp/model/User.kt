@@ -18,5 +18,7 @@ data class Child(
     val parentEmail: String,
     val category: String,
     val token: String,
-    val screenTime: Long
+    val screenTime: Long,
+    val address: String,
+    var screenTimeLimit: Long
 )

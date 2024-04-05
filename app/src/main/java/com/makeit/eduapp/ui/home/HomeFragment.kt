@@ -14,21 +14,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -42,7 +35,6 @@ import com.makeit.eduapp.ui.SplashScreenActivity
 import com.makeit.eduapp.util.MyFirebaseMessagingService
 import com.makeit.eduapp.util.ScreenTimeForegroundService
 import com.makeit.eduapp.util.ScreenTimeTracker
-import com.makeit.eduapp.util.SnackbarDisplayListener
 import java.io.IOException
 import java.util.Locale
 
@@ -212,15 +204,13 @@ class HomeFragment : Fragment(){
             }
         }
 
-//        homeViewModel.getUserObservable().observe(viewLifecycleOwner, userObservable())
-
         homeViewModel.childList.observe(viewLifecycleOwner){
             Log.d(TAG, "onCreateView: childObserver")
             binding.tvCountOfChild.text = "You have ${it.size} dependent under you"
 
             childAdapter = ChildAdapter(it) // Pass an empty list initially
             binding.rvChildList.apply {
-                layoutManager = LinearLayoutManager(requireContext())
+                layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                 adapter = childAdapter
             }
         }
@@ -306,6 +296,10 @@ class HomeFragment : Fragment(){
                                                                             document.getString("token")
                                                                         val screenTime =
                                                                             document.getLong("screenTime")
+                                                                        val childAddress =
+                                                                            document.getString("address")
+                                                                        val screenTimeLimit =
+                                                                            document.getLong("screenTimeLimit")
                                                                         val id = document.id
 
                                                                         if (email == childEmail && name != null && category != null) {
@@ -317,7 +311,9 @@ class HomeFragment : Fragment(){
                                                                                     parentEmail,
                                                                                     category,
                                                                                     token?:"",
-                                                                                    screenTime?:0
+                                                                                    screenTime?:0,
+                                                                                    childAddress?:"",
+                                                                                    screenTimeLimit?:0
                                                                                 )
                                                                             )
                                                                             homeViewModel.setChildList(
@@ -412,6 +408,7 @@ class HomeFragment : Fragment(){
 
                                         parentsCollection.get()
                                             .addOnSuccessListener { documents ->
+                                                childList.clear()
                                                 for (document in documents) {
                                                     Log.d(TAG, "${document.id} => ${document.data}")
                                                     //Access the data in the document
@@ -440,6 +437,10 @@ class HomeFragment : Fragment(){
                                                                             document.getString("token")
                                                                         val screenTime =
                                                                             document.getLong("screenTime")
+                                                                        val childAddress =
+                                                                            document.getString("address")
+                                                                        val screenTimeLimit =
+                                                                            document.getLong("screenTimeLimit")
                                                                         val id =
                                                                             document.id
 
@@ -452,7 +453,9 @@ class HomeFragment : Fragment(){
                                                                                     parentEmail,
                                                                                     category,
                                                                                     token?:"",
-                                                                                    screenTime?:0
+                                                                                    screenTime?:0,
+                                                                                    childAddress?:"",
+                                                                                    screenTimeLimit?:0
                                                                                 )
                                                                             )
                                                                             homeViewModel.setChildList(
@@ -465,12 +468,10 @@ class HomeFragment : Fragment(){
                                                     }
                                                 }
                                             }
-
                                     }
                                     .addOnFailureListener {
                                         Snackbar.make(view, "Child found but failed to register.", Snackbar.LENGTH_SHORT).show()
                                         Log.d(TAG, "onFailure: ${it.toString()}")
-
                                     }
                                 isChildFound = true
                                 break
@@ -514,7 +515,8 @@ class HomeFragment : Fragment(){
 
     private fun subscribeUserPushTopic(user: User){
         if (user.token.isNotEmpty()){
-            FirebaseMessaging.getInstance().subscribeToTopic(user.email)
+            FirebaseMessaging.getInstance().subscribeToTopic(user.id)
+            Log.d(TAG, "subscribeUserPushTopic: topic: ${user.id}")
         } else {
             Log.d(TAG, "subscribeUserPushTopic: user.token empty")
         }
@@ -528,12 +530,32 @@ class HomeFragment : Fragment(){
         Log.d(TAG, "startScreenTimeForegroundService: in homefragment")
         // Schedule the service to run
         val intervalMillis = 60 * 1000L //
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + intervalMillis,
-            intervalMillis,
-            pendingIntent
-        )
+
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val canScheduleExactAlarms = alarmManager.canScheduleExactAlarms()
+            if (canScheduleExactAlarms) {
+                // Schedule exact alarms
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + intervalMillis,
+                    pendingIntent
+                )
+            } else {
+                // Handle the case where the app is not allowed to schedule exact alarms
+                Toast.makeText(requireContext(), "Not allowed to schedule service", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Use the existing method for older versions
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + intervalMillis,
+                intervalMillis,
+                pendingIntent
+            )
+        }
     }
 
     @SuppressLint("MissingPermission")
